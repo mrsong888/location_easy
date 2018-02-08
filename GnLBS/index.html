@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>异步加载地图</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>    
+    <style>
+        .marker {
+            color: #ff6600;
+            padding: 4px 10px;
+            border: 1px solid #fff;
+            white-space: nowrap;
+            font-size: 12px;
+            font-family: "";
+            background-color: #0066ff;
+        }
+        #panel {
+            position: fixed;
+            background-color: white;
+            max-height: 90%;
+            overflow-y: auto;
+            top: 10px;
+            right: 10px;
+            width: 280px;
+        }
+        *{
+    margin: 0;
+    padding: 0;
+  }
+  .container1{
+    height: 50px;
+    width: 800px;
+    background: #ddef00;
+    position: absolute;
+    top: 0;
+    left: 69px;
+    z-index: 10000;
+  }
+  .container1 input{
+    height: 50px;
+    width: 400px;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 101;
+  }
+  .container1 ul{
+    height: 50px;
+    width: 400px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid #ddef00;
+  }
+  .container1 li{
+    list-style: none;
+    float: left;
+    line-height: 50px;
+    width: 49%;
+    font-size: 12px;
+  }
+  .container1 label{
+            width: 280px;
+            height: 28px;
+            line-height: 20px;
+            position: absolute;
+            top: 15px;
+            font-size: 12px;
+            left: 400px;
+            background: transparent;
+            opacity: 1;
+        }
+        .container1 #phone{
+            width: 200px;
+            height: 20px;
+            line-height: 20px;
+            position: static;
+            background: #fff;
+            opacity: 1;
+        }
+        .container1 button{
+            height: 28px;
+            width: 100px;
+            line-height: 28px;
+            text-align: center;
+            border: none;
+            border: 1px solid #666;
+            position: absolute;
+            top: 11px;
+            right: 0;
+
+        }
+    </style>
+</head>
+<body>
+<div class="container1">
+  <input type="text" class="demo-input" placeholder="请选择日期" id="test2">
+  <ul>
+    <li>
+      <span>开始时间：</span>
+      <span class="start_date"></span>
+    </li>
+    <li>
+      <span>结束时间：</span>
+      <span class="end_date"></span>
+    </li>
+  </ul>
+    <label for="">
+        手机号
+        <input type="text" id="phone"/>
+    </label>
+    <button onclick="gogo();">前往</button>
+</div>
+<div id="container"></div>
+<div id="panel"></div>
+<script src="http://webapi.amap.com/maps?v=1.4.3&callback=init"></script>
+<script>
+    locations = [
+    ];
+
+    map = undefined;
+    function ShowMarkers(value, index, ar)
+    {
+        marker = new AMap.Marker({
+            icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png",
+            position: value
+        });
+
+        marker.setMap(map);
+    }
+
+    function init(){
+        map = new AMap.Map('container', {
+            center: locations[0],
+            zoom: 16
+        });
+        map.plugin(["AMap.ToolBar"], function() {
+            map.addControl(new AMap.ToolBar());
+        });
+        map.plugin(["AMap.Scale"],function(){
+            var scale = new AMap.Scale();
+            map.addControl(scale);   
+        });
+
+        locations.forEach(ShowMarkers);
+
+        var polyline = new AMap.Polyline({
+            showDir: true,
+            lineJoin: 'round',
+            bubble: true,
+            path: locations,          //设置线覆盖物路径
+            strokeColor: "#FF0000", //线颜色
+            strokeOpacity: 1,       //线透明度
+            strokeWeight: 6,        //线宽
+            strokeStyle: "solid",   //线样式
+            strokeDasharray: [10, 5] //补充线样式
+        });
+        polyline.setMap(map);
+
+        //步行导航
+        // var walking = new AMap.Walking({
+        //   map: map,
+        //   panel: "panel"
+        // }); 
+        //根据起终点坐标规划步行路线
+        // walking.search(locations[0], locations[locations.length-1]);
+
+    }
+</script>
+<script src="laydate/laydate.js"></script>
+<script>
+
+//执行一个laydate实例
+function toTwoNum (val){
+  return val * 1 >= 10 ? val : "0" + val;
+}
+var start_date = "";
+var end_date = "";
+
+laydate.render({
+  elem: '#test2'
+  ,type: 'datetime'
+  ,range: true,
+  done: function(value, date, endDate){
+    console.log(value);
+    console.log(date);
+    console.log(endDate);
+    if(!value){
+      document.getElementsByClassName("start_date")[0].innerHTML = "";
+      document.getElementsByClassName("end_date")[0].innerHTML = "";
+      return
+    }
+    document.getElementsByClassName("start_date")[0].innerHTML = date.year + "-" + toTwoNum(date.month) + "-" + toTwoNum(date.date) + " " + toTwoNum(date.hours) + ":" + toTwoNum(date.minutes) + ":" + toTwoNum(date.seconds);
+    document.getElementsByClassName("end_date")[0].innerHTML = endDate.year + "-" + toTwoNum(endDate.month) + "-" + toTwoNum(endDate.date) + " " + toTwoNum(endDate.hours) + ":" + toTwoNum(endDate.minutes) + ":" + toTwoNum(endDate.seconds);
+    start_date = date.year + toTwoNum(date.month) + toTwoNum(date.date) + toTwoNum(date.hours) + toTwoNum(date.minutes) + toTwoNum(date.seconds);
+    end_date = endDate.year + toTwoNum(endDate.month) + toTwoNum(endDate.date) + toTwoNum(endDate.hours) + toTwoNum(endDate.minutes) + toTwoNum(endDate.seconds);
+  }
+});
+function gogo(){
+    var phone = document.getElementById("phone").value;
+    var uri = "http://localhost:8080/api" + "?stime=" + start_date + "&etime=" + end_date + "&mdn=" + phone;
+//    window.location.href = uri;
+    var a = document.createElement("a");
+    a.href = uri;
+    a.target = "_blank";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+
+}
+</script>
+</body>
+</html>
+

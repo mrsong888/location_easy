@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>异步加载地图</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>    
+    <style>
+        .marker {
+            color: #ff6600;
+            padding: 4px 10px;
+            border: 1px solid #fff;
+            white-space: nowrap;
+            font-size: 12px;
+            font-family: "";
+            background-color: #0066ff;
+        }
+        #panel {
+            position: fixed;
+            background-color: white;
+            max-height: 90%;
+            overflow-y: auto;
+            top: 10px;
+            right: 10px;
+            width: 280px;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div id="panel"></div>
+<script src="http://webapi.amap.com/maps?v=1.4.3&callback=init"></script>
+<script>
+// AUTOGEN-CODE
+
+    map = undefined;
+    function ShowMarkers(value, index, ar)
+    {
+        marker = new AMap.Marker({
+            icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png",
+            position: value
+        });
+
+        marker.setMap(map);
+    }
+
+    function init(){
+        map = new AMap.Map('container', {
+            center: locations[0],
+            zoom: 16
+        });
+        map.plugin(["AMap.ToolBar"], function() {
+            map.addControl(new AMap.ToolBar());
+        });
+        map.plugin(["AMap.Scale"],function(){
+            var scale = new AMap.Scale();
+            map.addControl(scale);   
+        });
+
+        locations.forEach(ShowMarkers);
+
+        var polyline = new AMap.Polyline({
+            showDir: true,
+            lineJoin: 'round',
+            bubble: true,
+            path: locations,          //设置线覆盖物路径
+            strokeColor: "#FF0000", //线颜色
+            strokeOpacity: 1,       //线透明度
+            strokeWeight: 6,        //线宽
+            strokeStyle: "solid",   //线样式
+            strokeDasharray: [10, 5] //补充线样式
+        });
+        polyline.setMap(map);
+
+        //步行导航
+        // var walking = new AMap.Walking({
+        //   map: map,
+        //   panel: "panel"
+        // }); 
+        //根据起终点坐标规划步行路线
+        // walking.search(locations[0], locations[locations.length-1]);
+
+    }
+</script>
+</body>
+</html>
+
